@@ -1,11 +1,15 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
 const app = express();
 const port = 3000;
 
 // Käytetään JSON-middlewarea POST-datan käsittelyyn
 app.use(express.json());
+
+// Palvellaan staattiset tiedostot "public" -kansiosta
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Yhdistä SQLite-tietokantaan
 const db = new sqlite3.Database('./database.db', (err) => {
@@ -23,6 +27,11 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE,
   age INTEGER
 )`);
+
+// Hae HTML-sivu pääreitillä
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
 
 // Luo uusi käyttäjä (Create)
 app.post('/users', (req, res) => {
